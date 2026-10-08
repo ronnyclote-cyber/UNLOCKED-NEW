@@ -9,13 +9,15 @@ workflows:
     scripts:
       - name: Install app dependencies
         script: |
-          npm install --global pnpm@11.25.0
-          pnpm install --frozen-lockfile
+          cd "$CM_BUILD_DIR"
+          npx --yes pnpm@11.25.0 install --frozen-lockfile
       - name: Synchronize Android app
-        script: pnpm exec cap sync android
+        script: |
+          cd "$CM_BUILD_DIR"
+          npx --yes pnpm@11.25.0 exec cap sync android
       - name: Build test APK
         script: |
-          cd android
+          cd "$CM_BUILD_DIR/android"
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
     artifacts:
@@ -30,16 +32,19 @@ workflows:
     scripts:
       - name: Install app dependencies
         script: |
-          npm install --global pnpm@11.25.0
-          pnpm install --frozen-lockfile
+          cd "$CM_BUILD_DIR"
+          npx --yes pnpm@11.25.0 install --frozen-lockfile
       - name: Synchronize iPhone app
-        script: pnpm exec cap sync ios
+        script: |
+          cd "$CM_BUILD_DIR"
+          npx --yes pnpm@11.25.0 exec cap sync ios
       - name: Build for iPhone simulator
         script: |
+          cd "$CM_BUILD_DIR"
           xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/ios CODE_SIGNING_ALLOWED=NO build
       - name: Package simulator app
         script: |
-          cd build/ios/Build/Products/Debug-iphonesimulator
+          cd "$CM_BUILD_DIR/build/ios/Build/Products/Debug-iphonesimulator"
           zip -r "$CM_BUILD_DIR/UNLOCKED-ios-simulator.zip" App.app
     artifacts:
       - UNLOCKED-ios-simulator.zip
