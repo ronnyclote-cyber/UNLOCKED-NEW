@@ -1,0 +1,45 @@
+workflows:
+  android-test:
+    name: UNLOCKED Android test APK
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      node: 24
+      java: 21
+    scripts:
+      - name: Install app dependencies
+        script: |
+          npm install --global pnpm@11.25.0
+          pnpm install --frozen-lockfile
+      - name: Synchronize Android app
+        script: pnpm exec cap sync android
+      - name: Build test APK
+        script: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
+    artifacts:
+      - android/app/build/outputs/apk/debug/*.apk
+  ios-simulator:
+    name: UNLOCKED iPhone simulator check
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      node: 24
+      xcode: latest
+    scripts:
+      - name: Install app dependencies
+        script: |
+          npm install --global pnpm@11.25.0
+          pnpm install --frozen-lockfile
+      - name: Synchronize iPhone app
+        script: pnpm exec cap sync ios
+      - name: Build for iPhone simulator
+        script: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath build/ios CODE_SIGNING_ALLOWED=NO build
+      - name: Package simulator app
+        script: |
+          cd build/ios/Build/Products/Debug-iphonesimulator
+          zip -r "$CM_BUILD_DIR/UNLOCKED-ios-simulator.zip" App.app
+    artifacts:
+      - UNLOCKED-ios-simulator.zip
