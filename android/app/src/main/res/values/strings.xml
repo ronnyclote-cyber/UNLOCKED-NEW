@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">UNLOCKED</string>
+    <string name="title_activity_main">UNLOCKED</string>
+    <string name="package_name">com.example.unlocked</string>
+    <string name="custom_url_scheme">com.example.unlocked</string>
+</resources>
